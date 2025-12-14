@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.recruitmenttask.infrastructure.dto.CarbonDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 

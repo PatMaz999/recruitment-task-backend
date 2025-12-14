@@ -29,8 +29,9 @@ public class EnergyMixRange {
 
     private List<EnergyMixTimestamp> timestamps;
 
-    public int getTimestampsCount() {
-        return timestamps.size();
+    public EnergyMixRange subRange(int from, int to) {
+        List<EnergyMixTimestamp> newTimestamps = new ArrayList<>(this.timestamps.subList(from, to));
+        return new EnergyMixRange(newTimestamps);
     }
 
     public List<EnergyMixRange> splitRangeByDays() {
@@ -49,7 +50,7 @@ public class EnergyMixRange {
 
             List<EnergyMixTimestamp> timestampsOfSpecificDay = timestamps.stream()
                     .filter(x ->
-                            x.getFrom().isBefore(endOfDay) && ( x.getFrom().isAfter(startOfDay) || x.getFrom().isEqual(startOfDay))
+                            x.getFrom().isBefore(endOfDay) && (x.getFrom().isAfter(startOfDay) || x.getFrom().isEqual(startOfDay))
                     ).collect(Collectors.toList());
             ranges.add(new EnergyMixRange(timestampsOfSpecificDay));
         }

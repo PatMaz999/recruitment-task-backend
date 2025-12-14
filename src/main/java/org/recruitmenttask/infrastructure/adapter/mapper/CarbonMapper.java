@@ -4,6 +4,7 @@ import org.recruitmenttask.domain.model.EnergyMixRange;
 import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 import org.recruitmenttask.infrastructure.dto.CarbonDto;
 import org.recruitmenttask.infrastructure.dto.CarbonTimestampDto;
+import org.recruitmenttask.infrastructure.dto.OptimalChargingDto;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,6 +25,14 @@ public class CarbonMapper {
                 carbonTimestampDto.getGenerationMix().stream().filter(x -> greenEnergy.contains(x.fuel())).collect(Collectors.toList()),
                 carbonTimestampDto.getGenerationMix().stream().filter(x -> !greenEnergy.contains(x.fuel())).collect(Collectors.toList())
         );
+    }
+
+    public static OptimalChargingDto toChargingDto(EnergyMixTimestamp timestamp) {
+        return OptimalChargingDto.builder()
+                .from(timestamp.getFrom())
+                .to(timestamp.getTo())
+                .greenPerc(timestamp.getTotalGreenPerc())
+                .build();
     }
 
 }

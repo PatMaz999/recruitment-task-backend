@@ -5,8 +5,8 @@ import org.recruitmenttask.domain.EnergyMixService;
 import org.recruitmenttask.domain.model.EnergyMixRange;
 import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 import org.recruitmenttask.infrastructure.adapter.CarbonAdapter;
-import org.recruitmenttask.infrastructure.dto.CarbonDto;
-import org.recruitmenttask.infrastructure.repository.CarbonIntensityRepository;
+import org.recruitmenttask.infrastructure.adapter.mapper.CarbonMapper;
+import org.recruitmenttask.infrastructure.dto.OptimalChargingDto;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +22,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CarbonController {
 
-    private final CarbonAdapter  carbonAdapter;
+    private final CarbonAdapter carbonAdapter;
     private final EnergyMixService energyService;
 
-//    FIXME: test endpoint
+    //    FIXME: test endpoint
     @GetMapping("/generation")
     public ResponseEntity<EnergyMixRange> generationMix(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
@@ -33,6 +33,7 @@ public class CarbonController {
     ) {
         return ResponseEntity.ok(carbonAdapter.createMixRange(from, to));
     }
+
     //    FIXME: test endpoint
     @GetMapping("/generation/as-one")
     public ResponseEntity<EnergyMixTimestamp> generationMixTimestamp(
@@ -45,6 +46,11 @@ public class CarbonController {
     @GetMapping("/current-three-days")
     public ResponseEntity<List<EnergyMixTimestamp>> generationMixDays() {
         return ResponseEntity.ok(energyService.fetchCurrentThreeDays());
+    }
+
+    @GetMapping("/optimal-charging")
+    public ResponseEntity<OptimalChargingDto> optimalCharging(@RequestParam int hours) {
+        return ResponseEntity.ok(CarbonMapper.toChargingDto(energyService.calcOptimalChargingTime(hours).mergeTimestamps()));
     }
 
 }
