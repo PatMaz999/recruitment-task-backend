@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CarbonIntensityRepository {
     private final RestClient carbonClient;
-    private final ObjectMapper objMapper;
 
     public CarbonDto fetchGeneration(LocalDateTime from, LocalDateTime to) {
         return carbonClient.get()
