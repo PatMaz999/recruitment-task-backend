@@ -1,12 +1,14 @@
 package org.recruitmenttask.domain.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@Setter
 public class EnergyMixTimestamp {
 
     public EnergyMixTimestamp(LocalDateTime from, LocalDateTime to, List<EnergySource> greenEnergy, List<EnergySource> otherEnergy) {
@@ -32,5 +34,4 @@ public class EnergyMixTimestamp {
 
     private double totalGreenPerc;
     private double totalOtherPerc;
-
 }

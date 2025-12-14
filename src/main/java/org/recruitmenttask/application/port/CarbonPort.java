@@ -6,6 +6,6 @@ import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 import java.time.LocalDateTime;
 
 public interface CarbonPort {
-    EnergyMixTimestamp createMixTimestamp(LocalDateTime from, LocalDateTime to);
+//    EnergyMixTimestamp createMixTimestamp(LocalDateTime from, LocalDateTime to);
     EnergyMixRange createMixRange(LocalDateTime from, LocalDateTime to);
 }
