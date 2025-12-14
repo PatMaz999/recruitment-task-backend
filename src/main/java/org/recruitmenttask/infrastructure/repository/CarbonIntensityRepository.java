@@ -1,7 +1,7 @@
-package org.recruitmenttask.repository;
+package org.recruitmenttask.infrastructure.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.recruitmenttask.dto.CarbonDto;
+import org.recruitmenttask.infrastructure.dto.CarbonDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;

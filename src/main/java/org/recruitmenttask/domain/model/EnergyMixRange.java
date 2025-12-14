@@ -1,4 +1,4 @@
-package org.recruitmenttask.model;
+package org.recruitmenttask.domain.model;
 
 import java.time.Duration;
 import java.util.List;

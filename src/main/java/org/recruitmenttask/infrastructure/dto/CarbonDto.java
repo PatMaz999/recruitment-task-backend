@@ -1,4 +1,4 @@
-package org.recruitmenttask.dto;
+package org.recruitmenttask.infrastructure.dto;
 
 import lombok.Getter;
 import lombok.Setter;

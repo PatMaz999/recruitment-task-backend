@@ -1,8 +1,8 @@
-package org.recruitmenttask.controller;
+package org.recruitmenttask.infrastructure.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.recruitmenttask.dto.CarbonDto;
-import org.recruitmenttask.repository.CarbonIntensityRepository;
+import org.recruitmenttask.infrastructure.dto.CarbonDto;
+import org.recruitmenttask.infrastructure.repository.CarbonIntensityRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @RestController

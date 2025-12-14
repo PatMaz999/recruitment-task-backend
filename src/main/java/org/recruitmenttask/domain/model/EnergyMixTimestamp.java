@@ -1,7 +1,4 @@
-package org.recruitmenttask.model;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.recruitmenttask.dto.CarbonTimestampDto;
+package org.recruitmenttask.domain.model;
 
 import java.time.Duration;
 import java.util.List;

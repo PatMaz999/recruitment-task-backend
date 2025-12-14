@@ -1,4 +1,4 @@
-package org.recruitmenttask.dto;
+package org.recruitmenttask.infrastructure.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
