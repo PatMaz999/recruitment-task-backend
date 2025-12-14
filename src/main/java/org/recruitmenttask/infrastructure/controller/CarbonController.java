@@ -1,6 +1,7 @@
 package org.recruitmenttask.infrastructure.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.recruitmenttask.domain.EnergyMixService;
 import org.recruitmenttask.domain.model.EnergyMixRange;
 import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 import org.recruitmenttask.infrastructure.adapter.CarbonAdapter;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CarbonController {
 
     private final CarbonAdapter  carbonAdapter;
+    private final EnergyMixService energyService;
 
 //    FIXME: test endpoint
     @GetMapping("/generation")
@@ -31,7 +33,7 @@ public class CarbonController {
     ) {
         return ResponseEntity.ok(carbonAdapter.createMixRange(from, to));
     }
-
+    //    FIXME: test endpoint
     @GetMapping("/generation/as-one")
     public ResponseEntity<EnergyMixTimestamp> generationMixTimestamp(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
@@ -40,12 +42,9 @@ public class CarbonController {
         return ResponseEntity.ok(carbonAdapter.createMixRange(from, to).mergeTimestamps());
     }
 
-    @GetMapping("/generation/by-days")
-    public ResponseEntity<List<EnergyMixTimestamp>> generationMixDays(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
-    ) {
-        return ResponseEntity.ok(carbonAdapter.createMixRange(from, to).splitRangeByDays().stream().map(EnergyMixRange::mergeTimestamps).toList());
+    @GetMapping("/current-three-days")
+    public ResponseEntity<List<EnergyMixTimestamp>> generationMixDays() {
+        return ResponseEntity.ok(energyService.fetchCurrentThreeDays());
     }
 
 }
