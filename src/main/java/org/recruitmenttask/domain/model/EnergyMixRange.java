@@ -4,9 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -27,6 +31,29 @@ public class EnergyMixRange {
 
     public int getTimestampsCount() {
         return timestamps.size();
+    }
+
+    public List<EnergyMixRange> splitRangeByDays() {
+        List<EnergyMixRange> ranges = new ArrayList<>();
+        LocalTime lastHour = LocalTime.of(23, 59);
+        LocalTime firstHour = LocalTime.of(0, 0);
+
+        LocalDate start = from.toLocalDate();
+        LocalDate end = to.toLocalDate();
+        long numberOfDays = start.until(end, ChronoUnit.DAYS);
+        for (int i = 0; i <= numberOfDays; i++) {
+
+            LocalDate onlyDate = from.plusDays(i).toLocalDate();
+            LocalDateTime startOfDay = onlyDate.atTime(firstHour);
+            LocalDateTime endOfDay = onlyDate.atTime(lastHour);
+
+            List<EnergyMixTimestamp> timestampsOfSpecificDay = timestamps.stream()
+                    .filter(x ->
+                            x.getFrom().isBefore(endOfDay) && ( x.getFrom().isAfter(startOfDay) || x.getFrom().isEqual(startOfDay))
+                    ).collect(Collectors.toList());
+            ranges.add(new EnergyMixRange(timestampsOfSpecificDay));
+        }
+        return ranges;
     }
 
     //    TODO: need refactor

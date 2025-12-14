@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/energy-mix")
@@ -37,6 +38,14 @@ public class CarbonController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
     ) {
         return ResponseEntity.ok(carbonAdapter.createMixRange(from, to).mergeTimestamps());
+    }
+
+    @GetMapping("/generation/by-days")
+    public ResponseEntity<List<EnergyMixTimestamp>> generationMixDays(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
+    ) {
+        return ResponseEntity.ok(carbonAdapter.createMixRange(from, to).splitRangeByDays().stream().map(EnergyMixRange::mergeTimestamps).toList());
     }
 
 }
