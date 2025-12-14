@@ -3,17 +3,17 @@ package org.recruitmenttask.infrastructure.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class CarbonTimestampDto {
 
-    public record EnergySource(String fuel, double perc){}
-
-    private String from;
-    private String to;
+    private LocalDateTime from;
+    private LocalDateTime to;
     @JsonProperty("generationmix")
-    private List<EnergySource> generationMix;
+    private List<EnergyMixTimestamp.EnergySource> generationMix;
 }
