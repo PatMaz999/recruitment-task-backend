@@ -22,8 +22,8 @@ public class EnergyMixService {
         LocalDate currentDate = LocalDate.now();
         LocalTime firstHour = LocalTime.of(0, 1);
         LocalTime lastHour = LocalTime.of(23, 59);
-        LocalDateTime start = LocalDateTime.of(currentDate.minusDays(1), firstHour);
-        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(1), lastHour);
+        LocalDateTime start = LocalDateTime.of(currentDate, firstHour);
+        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(2), lastHour);
 
         return carbonPort.createMixRange(start, end)
                 .splitRangeByDays().stream()
@@ -39,7 +39,8 @@ public class EnergyMixService {
 
         LocalDate currentDate = start.toLocalDate();
         LocalTime lastHour = LocalTime.of(23, 59);
-        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(1), lastHour);
+//        FIXME: is timestamp from current to +2 days correct
+        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(2), lastHour);
 
         EnergyMixRange mixRange = carbonPort.createMixRange(start, end);
         int endIndex = findOptimalEndTimeIndex(mixRange, hours);
