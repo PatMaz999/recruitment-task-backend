@@ -14,7 +14,6 @@ public class EnergyMixTimestamp {
     public EnergyMixTimestamp(LocalDateTime from, LocalDateTime to, List<EnergySource> greenEnergy, List<EnergySource> otherEnergy) {
         this.from = from;
         this.to = to;
-        this.timestampRange = Duration.between(from, to);
 
         this.greenEnergyPerc = greenEnergy;
         this.otherEnergyPerc = otherEnergy;
@@ -27,7 +26,6 @@ public class EnergyMixTimestamp {
 
     private LocalDateTime from;
     private LocalDateTime to;
-    private Duration timestampRange;
 
     private List<EnergySource> greenEnergyPerc;
     private List<EnergySource> otherEnergyPerc;

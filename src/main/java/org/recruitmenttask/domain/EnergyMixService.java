@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.recruitmenttask.application.port.CarbonPort;
 import org.recruitmenttask.domain.model.EnergyMixRange;
 import org.recruitmenttask.domain.model.EnergyMixTimestamp;
+import org.recruitmenttask.exception.InvalidHourCountException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,11 +32,10 @@ public class EnergyMixService {
     }
 
     public EnergyMixRange calcOptimalChargingTime(int hours) {
-//        TODO: handle exception
         if (hours < 1 || hours > 6)
-            throw new IllegalArgumentException("Hours must be between 1 and 6");
+            throw new InvalidHourCountException(hours);
 
-        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime start = this.calcStartTime();
 
         LocalDate currentDate = start.toLocalDate();
         LocalTime lastHour = LocalTime.of(23, 59);
@@ -74,5 +74,24 @@ public class EnergyMixService {
             }
         }
         return lastMaxIndex;
+    }
+
+    private LocalDateTime calcStartTime(){
+        LocalDate startDate = LocalDate.now();
+        LocalTime currentTime = LocalTime.now();
+        int startHour = currentTime.getHour();
+        int startMinute = 0;
+        if(currentTime.getMinute() <= 30){
+            startMinute = 30;
+        }
+        else{
+            if(startHour == 23){
+                startHour = 0;
+                startDate = startDate.plusDays(1);
+            }
+            else
+                startHour++;
+        }
+        return startDate.atTime(startHour, startMinute);
     }
 }

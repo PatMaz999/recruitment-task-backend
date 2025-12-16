@@ -20,12 +20,10 @@ public class EnergyMixRange {
         this.timestamps = timestamps;
         this.from = timestamps.getFirst().getFrom();
         this.to = timestamps.getLast().getTo();
-        this.totalRange = Duration.between(from, to);
     }
 
     private LocalDateTime from;
     private LocalDateTime to;
-    private Duration totalRange;
 
     private List<EnergyMixTimestamp> timestamps;
 
