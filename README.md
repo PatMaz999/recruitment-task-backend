@@ -13,6 +13,6 @@
 ---
 
 ## Related Projects
-- Frontend: `Coming Soon`
+- [Frontend](https://github.com/PatMaz999/recruitment-task-frontend)
 
 ---
