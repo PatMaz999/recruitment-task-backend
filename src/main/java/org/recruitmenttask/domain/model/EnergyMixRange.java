@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 public class EnergyMixRange {
 
     public EnergyMixRange(List<EnergyMixTimestamp> timestamps) {
+        if(timestamps.isEmpty())
+            throw new IllegalArgumentException("Range should contain at least one timestamp");
         this.timestamps = timestamps;
         this.from = timestamps.getFirst().getFrom();
         this.to = timestamps.getLast().getTo();
@@ -38,6 +40,8 @@ public class EnergyMixRange {
         LocalDate start = from.toLocalDate();
         LocalDate end = to.toLocalDate();
         long numberOfDays = start.until(end, ChronoUnit.DAYS);
+        if(this.to.getHour() == 0)
+            numberOfDays--;
         for (int i = 0; i <= numberOfDays; i++) {
 
             LocalDate onlyDate = from.toLocalDate().plusDays(i);
