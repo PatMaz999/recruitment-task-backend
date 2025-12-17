@@ -12,6 +12,10 @@ import java.math.RoundingMode;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class for mapping between infrastructure DTOs and domain models.
+ * Categorizes energy sources into green and non-green types and handles decimal rounding.
+ */
 public class CarbonMapper {
     private CarbonMapper() {
     }

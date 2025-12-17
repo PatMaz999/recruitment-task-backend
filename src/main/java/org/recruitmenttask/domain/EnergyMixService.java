@@ -12,6 +12,9 @@ import java.util.List;
 
 import static org.recruitmenttask.domain.model.EnergyMixRange.TIME_ZONE;
 
+/**
+ * Domain service handling business logic
+ */
 @Service
 @RequiredArgsConstructor
 public class EnergyMixService {
@@ -19,6 +22,12 @@ public class EnergyMixService {
     private final CarbonPort carbonPort;
     private final Clock clock;
 
+    /**
+     * Fetches energy mix data for the current day and the following two days.
+     * Groups data by day and returns a merged average for each.
+     *
+     * @return List of aggregated {@link EnergyMixTimestamp} objects for three days.
+     */
     public List<EnergyMixTimestamp> fetchCurrentThreeDays() {
         LocalDate currentDate = LocalDate.now(clock);
         LocalTime firstHour = LocalTime.of(0, 1);
@@ -32,6 +41,13 @@ public class EnergyMixService {
                 .map(EnergyMixRange::mergeTimestamps).toList();
     }
 
+    /**
+     * Finds the continuous time window with the highest green energy percentage.
+     *
+     * @param hours Duration of the charging window (1-6 hours).
+     * @return {@link EnergyMixRange} representing the optimal time window.
+     * @throws InvalidHourCountException if hours are outside the 1-6 range.
+     */
     public EnergyMixRange calcOptimalChargingTime(int hours) {
         if (hours < 1 || hours > 6)
             throw new InvalidHourCountException(hours);
@@ -50,6 +66,9 @@ public class EnergyMixService {
         return mixRange.subRange(startIndex, endIndex);
     }
 
+    /**
+     * Finds the index of the most eco-friendly charging start using sliding window algorithm.
+     */
     private int findOptimalFirstIndex(EnergyMixRange mixRange, int hours) {
         List<EnergyMixTimestamp> timestamps = mixRange.getTimestamps();
 
@@ -77,6 +96,9 @@ public class EnergyMixService {
         return lastMaxIndex - countOfRanges + 1;
     }
 
+    /**
+     * Calculates the nearest upcoming 30-minute time slot to start calculations from.
+     */
     private ZonedDateTime calcStartTime() {
         ZonedDateTime now = ZonedDateTime.now(clock);
 

@@ -9,10 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Domain model representing a time range of energy mix data.
+ */
 @Getter
 @Setter
 public class EnergyMixRange {
 
+    /**
+     * Initializes the range and sets boundaries based on the provided timestamps.
+     *
+     * @param timestamps Non-empty list of {@link EnergyMixTimestamp}.
+     * @throws IllegalArgumentException if list is empty.
+     */
     public EnergyMixRange(List<EnergyMixTimestamp> timestamps) {
         if (timestamps.isEmpty())
             throw new IllegalArgumentException("Range should contain at least one timestamp");
@@ -28,11 +37,23 @@ public class EnergyMixRange {
 
     private List<EnergyMixTimestamp> timestamps;
 
+    /**
+     * Extracts a sub-list of timestamps into a new range.
+     *
+     * @param from Start index (inclusive).
+     * @param to   End index (exclusive).
+     * @return A new {@link EnergyMixRange} instance.
+     */
     public EnergyMixRange subRange(int from, int to) {
         List<EnergyMixTimestamp> newTimestamps = new ArrayList<>(this.timestamps.subList(from, to));
         return new EnergyMixRange(newTimestamps);
     }
 
+    /**
+     * Splits the current range into separate ranges grouped by calendar days.
+     *
+     * @return List of {@link EnergyMixRange} objects, one for each day.
+     */
     public List<EnergyMixRange> splitRangeByDays() {
         List<EnergyMixRange> ranges = new ArrayList<>();
         LocalTime lastHour = LocalTime.of(23, 59);
@@ -57,6 +78,12 @@ public class EnergyMixRange {
         return ranges;
     }
 
+    /**
+     * Merges all timestamps in the range into a single average timestamp.
+     * Calculates the arithmetic mean for each energy source.
+     *
+     * @return A single aggregated {@link EnergyMixTimestamp}.
+     */
     public EnergyMixTimestamp mergeTimestamps() {
 
         List<EnergyMixTimestamp.EnergySource> greenEnergy = new ArrayList<>(this.timestamps.getFirst().getGreenEnergyPerc());
@@ -83,11 +110,17 @@ public class EnergyMixRange {
         return new EnergyMixTimestamp(this.from, this.to, greenEnergy, otherEnergy);
     }
 
-    private void countAvg(List<EnergyMixTimestamp.EnergySource> greenEnergy, int countOfGreenSources) {
+    /**
+     * Calculates averages for a list of energy sources and rounds them to 2 decimal places.
+     *
+     * @param energySources       List to process.
+     * @param countOfGreenSources Number of energy sources.
+     */
+    private void countAvg(List<EnergyMixTimestamp.EnergySource> energySources, int countOfGreenSources) {
         for (int j = 0; j < countOfGreenSources; j++) {
-            EnergyMixTimestamp.EnergySource current = greenEnergy.get(j);
+            EnergyMixTimestamp.EnergySource current = energySources.get(j);
             double value = current.perc() / timestamps.size();
-            greenEnergy.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), Math.round(value * 100.0) / 100.0));
+            energySources.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), Math.round(value * 100.0) / 100.0));
         }
     }
 }
