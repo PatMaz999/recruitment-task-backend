@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Getter
@@ -12,6 +13,5 @@ import java.time.ZonedDateTime;
 public class OptimalChargingDto {
     private ZonedDateTime from;
     private ZonedDateTime to;
-    private double greenPerc;
-
+    private BigDecimal greenPerc;
 }

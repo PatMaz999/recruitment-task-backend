@@ -10,7 +10,7 @@ import static org.recruitmenttask.domain.model.EnergyMixRange.TIME_ZONE;
 @Configuration
 public class DateTimeConfig {
     @Bean
-    public Clock clock(){
+    public Clock clock() {
         return Clock.system(TIME_ZONE);
     }
 }

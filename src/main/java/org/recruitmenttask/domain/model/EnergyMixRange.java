@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class EnergyMixRange {
 
     public EnergyMixRange(List<EnergyMixTimestamp> timestamps) {
-        if(timestamps.isEmpty())
+        if (timestamps.isEmpty())
             throw new IllegalArgumentException("Range should contain at least one timestamp");
         this.timestamps = timestamps;
         this.from = timestamps.getFirst().getFrom();
@@ -40,7 +40,7 @@ public class EnergyMixRange {
         LocalDate start = from.toLocalDate();
         LocalDate end = to.toLocalDate();
         long numberOfDays = start.until(end, ChronoUnit.DAYS);
-        if(this.to.getHour() == 0)
+        if (this.to.getHour() == 0)
             numberOfDays--;
         for (int i = 0; i <= numberOfDays; i++) {
 
@@ -57,7 +57,6 @@ public class EnergyMixRange {
         return ranges;
     }
 
-    //    TODO: need refactor
     public EnergyMixTimestamp mergeTimestamps() {
 
         List<EnergyMixTimestamp.EnergySource> greenEnergy = new ArrayList<>(this.timestamps.getFirst().getGreenEnergyPerc());
@@ -72,10 +71,7 @@ public class EnergyMixRange {
                 greenEnergy.set(j, new EnergyMixTimestamp.EnergySource(greenEnergy.get(j).fuel(), greenEnergy.get(j).perc() + green));
             }
         }
-        for (int j = 0; j < countOfGreenSources; j++) {
-            EnergyMixTimestamp.EnergySource current = greenEnergy.get(j);
-            greenEnergy.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), current.perc() / timestamps.size()));
-        }
+        this.countAvg(greenEnergy, countOfGreenSources);
 
         for (int i = 1; i < timestamps.size(); i++) {
             for (int j = 0; j < countOfOtherSources; j++) {
@@ -83,10 +79,15 @@ public class EnergyMixRange {
                 otherEnergy.set(j, new EnergyMixTimestamp.EnergySource(otherEnergy.get(j).fuel(), otherEnergy.get(j).perc() + other));
             }
         }
-        for (int j = 0; j < countOfOtherSources; j++) {
-            EnergyMixTimestamp.EnergySource current = otherEnergy.get(j);
-            otherEnergy.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), current.perc() / timestamps.size()));
-        }
+        this.countAvg(otherEnergy, countOfOtherSources);
         return new EnergyMixTimestamp(this.from, this.to, greenEnergy, otherEnergy);
+    }
+
+    private void countAvg(List<EnergyMixTimestamp.EnergySource> greenEnergy, int countOfGreenSources) {
+        for (int j = 0; j < countOfGreenSources; j++) {
+            EnergyMixTimestamp.EnergySource current = greenEnergy.get(j);
+            double value = current.perc() / timestamps.size();
+            greenEnergy.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), Math.round(value * 100.0) / 100.0));
+        }
     }
 }
