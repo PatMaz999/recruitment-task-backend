@@ -3,10 +3,7 @@ package org.recruitmenttask.domain.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +19,10 @@ public class EnergyMixRange {
         this.to = timestamps.getLast().getTo();
     }
 
-    private LocalDateTime from;
-    private LocalDateTime to;
+    public final static ZoneId TIME_ZONE = ZoneOffset.UTC;
+
+    private ZonedDateTime from;
+    private ZonedDateTime to;
 
     private List<EnergyMixTimestamp> timestamps;
 
@@ -35,20 +34,19 @@ public class EnergyMixRange {
     public List<EnergyMixRange> splitRangeByDays() {
         List<EnergyMixRange> ranges = new ArrayList<>();
         LocalTime lastHour = LocalTime.of(23, 59);
-        LocalTime firstHour = LocalTime.of(0, 0);
 
         LocalDate start = from.toLocalDate();
         LocalDate end = to.toLocalDate();
         long numberOfDays = start.until(end, ChronoUnit.DAYS);
         for (int i = 0; i <= numberOfDays; i++) {
 
-            LocalDate onlyDate = from.plusDays(i).toLocalDate();
-            LocalDateTime startOfDay = onlyDate.atTime(firstHour);
-            LocalDateTime endOfDay = onlyDate.atTime(lastHour);
+            LocalDate onlyDate = from.toLocalDate().plusDays(i);
+            ZonedDateTime startOfDay = onlyDate.atStartOfDay(TIME_ZONE);
+            ZonedDateTime endOfDay = onlyDate.atTime(lastHour).atZone(TIME_ZONE);
 
             List<EnergyMixTimestamp> timestampsOfSpecificDay = timestamps.stream()
                     .filter(x ->
-                            x.getFrom().isBefore(endOfDay) && (x.getFrom().isAfter(startOfDay) || x.getFrom().isEqual(startOfDay))
+                            !x.getFrom().isBefore(startOfDay) && x.getFrom().isBefore(endOfDay)
                     ).collect(Collectors.toList());
             ranges.add(new EnergyMixRange(timestampsOfSpecificDay));
         }
@@ -57,8 +55,6 @@ public class EnergyMixRange {
 
     //    TODO: need refactor
     public EnergyMixTimestamp mergeTimestamps() {
-        LocalDateTime from = this.from;
-        LocalDateTime to = this.to;
 
         List<EnergyMixTimestamp.EnergySource> greenEnergy = new ArrayList<>(this.timestamps.getFirst().getGreenEnergyPerc());
         List<EnergyMixTimestamp.EnergySource> otherEnergy = new ArrayList<>(this.timestamps.getFirst().getOtherEnergyPerc());
@@ -87,6 +83,6 @@ public class EnergyMixRange {
             EnergyMixTimestamp.EnergySource current = otherEnergy.get(j);
             otherEnergy.set(j, new EnergyMixTimestamp.EnergySource(current.fuel(), current.perc() / timestamps.size()));
         }
-        return new EnergyMixTimestamp(from, to, greenEnergy, otherEnergy);
+        return new EnergyMixTimestamp(this.from, this.to, greenEnergy, otherEnergy);
     }
 }

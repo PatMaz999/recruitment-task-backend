@@ -8,7 +8,7 @@ import org.recruitmenttask.infrastructure.dto.CarbonDto;
 import org.recruitmenttask.infrastructure.repository.CarbonIntensityRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class CarbonAdapter implements CarbonPort {
     private final CarbonIntensityRepository carbonRepository;
 
     @Override
-    public EnergyMixRange createMixRange(LocalDateTime from, LocalDateTime to) {
+    public EnergyMixRange createMixRange(ZonedDateTime from, ZonedDateTime to) {
         CarbonDto carbonDto = carbonRepository.fetchGeneration(from, to);
         return CarbonMapper.toDomain(carbonDto);
     }

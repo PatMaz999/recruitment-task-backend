@@ -7,10 +7,10 @@ import org.recruitmenttask.domain.model.EnergyMixTimestamp;
 import org.recruitmenttask.exception.InvalidHourCountException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.List;
+
+import static org.recruitmenttask.domain.model.EnergyMixRange.TIME_ZONE;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +20,12 @@ public class EnergyMixService {
 
     //    FIXME: last timestamp missing
     public List<EnergyMixTimestamp> fetchCurrentThreeDays() {
-        LocalDate currentDate = LocalDate.now();
+        LocalDate currentDate = LocalDate.now(TIME_ZONE);
         LocalTime firstHour = LocalTime.of(0, 1);
-        LocalTime lastHour = LocalTime.of(23, 59);
-        LocalDateTime start = LocalDateTime.of(currentDate, firstHour);
-        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(2), lastHour);
+        ZonedDateTime start = currentDate.atTime(firstHour).atZone(TIME_ZONE);
+        ZonedDateTime end = currentDate.plusDays(2)
+                .atTime(LocalTime.MAX)
+                .atZone(TIME_ZONE);
 
         return carbonPort.createMixRange(start, end)
                 .splitRangeByDays().stream()
@@ -35,12 +36,14 @@ public class EnergyMixService {
         if (hours < 1 || hours > 6)
             throw new InvalidHourCountException(hours);
 
-        LocalDateTime start = this.calcStartTime();
+        ZonedDateTime start = this.calcStartTime();
 
         LocalDate currentDate = start.toLocalDate();
         LocalTime lastHour = LocalTime.of(23, 59);
 //        FIXME: is timestamp from current to +2 days correct
-        LocalDateTime end = LocalDateTime.of(currentDate.plusDays(2), lastHour);
+        ZonedDateTime end = currentDate.plusDays(2)
+                .atTime(lastHour)
+                .atZone(TIME_ZONE);
 
         EnergyMixRange mixRange = carbonPort.createMixRange(start, end);
         int endIndex = findOptimalEndTimeIndex(mixRange, hours);
@@ -76,22 +79,25 @@ public class EnergyMixService {
         return lastMaxIndex;
     }
 
-    private LocalDateTime calcStartTime(){
-        LocalDate startDate = LocalDate.now();
-        LocalTime currentTime = LocalTime.now();
-        int startHour = currentTime.getHour();
+    private ZonedDateTime calcStartTime() {
+        ZonedDateTime now = ZonedDateTime.now(TIME_ZONE);
+
+        LocalDate startDate = now.toLocalDate();
+        int startHour = now.getHour();
         int startMinute = 0;
-        if(currentTime.getMinute() <= 30){
+
+        if (now.getMinute() <= 30) {
             startMinute = 30;
-        }
-        else{
-            if(startHour == 23){
+        } else {
+            if (startHour == 23) {
                 startHour = 0;
                 startDate = startDate.plusDays(1);
-            }
-            else
+            } else {
                 startHour++;
+            }
         }
-        return startDate.atTime(startHour, startMinute);
+
+        return startDate.atTime(startHour, startMinute)
+                .atZone(TIME_ZONE);
     }
 }

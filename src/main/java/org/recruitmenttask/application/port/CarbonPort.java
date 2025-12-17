@@ -2,8 +2,8 @@ package org.recruitmenttask.application.port;
 
 import org.recruitmenttask.domain.model.EnergyMixRange;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public interface CarbonPort {
-    EnergyMixRange createMixRange(LocalDateTime from, LocalDateTime to);
+    EnergyMixRange createMixRange(ZonedDateTime from, ZonedDateTime to);
 }

@@ -4,14 +4,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
 @Builder
 public class OptimalChargingDto {
-    private LocalDateTime from;
-    private LocalDateTime to;
+    private ZonedDateTime from;
+    private ZonedDateTime to;
     private double greenPerc;
 
 }

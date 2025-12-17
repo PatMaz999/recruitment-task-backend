@@ -3,15 +3,14 @@ package org.recruitmenttask.domain.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class EnergyMixTimestamp {
 
-    public EnergyMixTimestamp(LocalDateTime from, LocalDateTime to, List<EnergySource> greenEnergy, List<EnergySource> otherEnergy) {
+    public EnergyMixTimestamp(ZonedDateTime from, ZonedDateTime to, List<EnergySource> greenEnergy, List<EnergySource> otherEnergy) {
         this.from = from;
         this.to = to;
 
@@ -24,8 +23,8 @@ public class EnergyMixTimestamp {
     public record EnergySource(String fuel, double perc) {
     }
 
-    private LocalDateTime from;
-    private LocalDateTime to;
+    private ZonedDateTime from;
+    private ZonedDateTime to;
 
     private List<EnergySource> greenEnergyPerc;
     private List<EnergySource> otherEnergyPerc;
