@@ -114,10 +114,52 @@ class EnergyMixServiceTest {
         assertEquals(start.toLocalDate().plusDays(1), lastSlot.getFrom().toLocalDate());
     }
 
+    @Test
+    void shouldSkipFirstWindowIfIsInPast() {
+        // GIVEN
+        int chargingHours = 3;
+
+        // 10:15
+        ZonedDateTime now = ZonedDateTime.of(2025, 10, 15, 10, 15, 0, 0, EnergyMixRange.TIME_ZONE);
+
+        Clock currentClock = Clock.fixed(now.toInstant(), EnergyMixRange.TIME_ZONE);
+        EnergyMixService service = new EnergyMixService(carbonPort, currentClock);
+
+        List<EnergyMixTimestamp> timestamps = new ArrayList<>();
+
+        // 10:00-10:30
+        ZonedDateTime startDate = now.withMinute(30).withSecond(0).withNano(0);
+        timestamps.addAll(createTimestamps(startDate, 5, 100.0));
+
+        // 13:00 - 14:00 | 100% green
+        timestamps.addAll(createTimestamps(startDate.plusMinutes(150), 2, 0.0));
+
+        // 14:00 - 17:00 | 90% green
+        timestamps.addAll(createTimestamps(startDate.plusMinutes(210), 6, 90.0));
+
+        EnergyMixRange mockData = new EnergyMixRange(timestamps);
+        when(carbonPort.createMixRange(any(ZonedDateTime.class), any(ZonedDateTime.class))).thenReturn(mockData);
+
+        // WHEN
+        EnergyMixRange result = service.calcOptimalChargingTime(chargingHours);
+
+        // THEN
+        assertEquals(6, result.getTimestamps().size());
+
+        double avgGreen = result.getTimestamps().stream()
+                .mapToDouble(EnergyMixTimestamp::getTotalGreenPerc)
+                .average().orElse(0.0);
+
+        assertEquals(90.0, avgGreen, 0.01, "You are unable to start charging car in the past");
+
+        assertEquals(14, result.getTimestamps().getFirst().getFrom().getHour());
+        assertEquals(0, result.getTimestamps().getFirst().getFrom().getMinute());
+    }
+
     private List<EnergyMixTimestamp> createTimestamps(ZonedDateTime start, int count, double greenPerc) {
         List<EnergyMixTimestamp> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            ZonedDateTime slotStart = start.plusMinutes(i * 30);
+            ZonedDateTime slotStart = start.plusMinutes(i * 30L);
             list.add(new EnergyMixTimestamp(
                     slotStart, slotStart.plusMinutes(30),
                     List.of(new EnergyMixTimestamp.EnergySource("Wind", greenPerc)),
@@ -126,5 +168,4 @@ class EnergyMixServiceTest {
         }
         return list;
     }
-
 }
