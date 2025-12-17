@@ -17,10 +17,10 @@ import static org.recruitmenttask.domain.model.EnergyMixRange.TIME_ZONE;
 public class EnergyMixService {
 
     private final CarbonPort carbonPort;
+    private final Clock clock;
 
-    //    FIXME: last timestamp missing
     public List<EnergyMixTimestamp> fetchCurrentThreeDays() {
-        LocalDate currentDate = LocalDate.now(TIME_ZONE);
+        LocalDate currentDate = LocalDate.now(clock);
         LocalTime firstHour = LocalTime.of(0, 1);
         ZonedDateTime start = currentDate.atTime(firstHour).atZone(TIME_ZONE);
         ZonedDateTime end = currentDate.plusDays(2)
@@ -40,7 +40,6 @@ public class EnergyMixService {
 
         LocalDate currentDate = start.toLocalDate();
         LocalTime lastHour = LocalTime.of(23, 59);
-//        FIXME: is timestamp from current to +2 days correct
         ZonedDateTime end = currentDate.plusDays(2)
                 .atTime(lastHour)
                 .atZone(TIME_ZONE);
@@ -80,7 +79,7 @@ public class EnergyMixService {
     }
 
     private ZonedDateTime calcStartTime() {
-        ZonedDateTime now = ZonedDateTime.now(TIME_ZONE);
+        ZonedDateTime now = ZonedDateTime.now(clock);
 
         LocalDate startDate = now.toLocalDate();
         int startHour = now.getHour();
