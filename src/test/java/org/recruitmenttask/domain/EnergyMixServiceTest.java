@@ -56,6 +56,7 @@ class EnergyMixServiceTest {
         assertEquals(today.plusDays(2), result.get(2).getFrom().toLocalDate());
     }
 
+
     private EnergyMixRange createMockDataForDays(LocalDate startDate, int count) {
         List<EnergyMixTimestamp> timestamps = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -69,6 +70,61 @@ class EnergyMixServiceTest {
             ));
         }
         return new EnergyMixRange(timestamps);
+    }
+
+    @Test
+    void shouldFindWindowCrossingMidnight() {
+        // GIVEN
+        int chargingHours = 2;
+        ZonedDateTime start = MOCK_DATE_TIME.withHour(20).withMinute(0);
+
+        List<EnergyMixTimestamp> timestamps = new ArrayList<>();
+
+        // 20:00 - 21:00
+        timestamps.addAll(createTimestamps(start, 2, 0.0));
+        // 21:00 - 23:00
+        timestamps.addAll(createTimestamps(start.plusHours(1), 4, 60.0));
+        // 23:00 - 23:30
+        timestamps.addAll(createTimestamps(start.plusHours(3), 1, 20.0));
+        // 23:30 - 01:30
+        timestamps.addAll(createTimestamps(start.plusHours(3).plusMinutes(30), 4, 100.0));
+        // 01:30 - 03:00
+        timestamps.addAll(createTimestamps(start.plusHours(5).plusMinutes(30), 3, 0.0));
+
+        EnergyMixRange mockData = new EnergyMixRange(timestamps);
+        when(carbonPort.createMixRange(any(ZonedDateTime.class), any(ZonedDateTime.class))).thenReturn(mockData);
+
+        // WHEN
+        EnergyMixRange result = energyService.calcOptimalChargingTime(chargingHours);
+
+        // THEN
+        assertEquals(4, result.getTimestamps().size());
+
+        assertTrue(result.getTimestamps().stream().allMatch(x -> x.getTotalGreenPerc() == 100.0));
+
+        EnergyMixTimestamp firstSlot = result.getTimestamps().getFirst();
+
+        assertEquals(23, firstSlot.getFrom().getHour());
+        assertEquals(30, firstSlot.getFrom().getMinute());
+        assertEquals(start.toLocalDate(), firstSlot.getFrom().toLocalDate());
+
+        EnergyMixTimestamp lastSlot = result.getTimestamps().get(3);
+
+        assertEquals(1, lastSlot.getFrom().getHour());
+        assertEquals(start.toLocalDate().plusDays(1), lastSlot.getFrom().toLocalDate());
+    }
+
+    private List<EnergyMixTimestamp> createTimestamps(ZonedDateTime start, int count, double greenPerc) {
+        List<EnergyMixTimestamp> list = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            ZonedDateTime slotStart = start.plusMinutes(i * 30);
+            list.add(new EnergyMixTimestamp(
+                    slotStart, slotStart.plusMinutes(30),
+                    List.of(new EnergyMixTimestamp.EnergySource("Wind", greenPerc)),
+                    List.of(new EnergyMixTimestamp.EnergySource("Coal", 100.0 - greenPerc))
+            ));
+        }
+        return list;
     }
 
 }

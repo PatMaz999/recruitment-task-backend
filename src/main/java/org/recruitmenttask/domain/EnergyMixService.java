@@ -45,13 +45,12 @@ public class EnergyMixService {
                 .atZone(TIME_ZONE);
 
         EnergyMixRange mixRange = carbonPort.createMixRange(start, end);
-        int endIndex = findOptimalEndTimeIndex(mixRange, hours);
-        int startIndex = endIndex - hours * 2;
-//        TODO: endIndex +1?
+        int startIndex = findOptimalFirstIndex(mixRange, hours);
+        int endIndex = startIndex + (hours * 2);
         return mixRange.subRange(startIndex, endIndex);
     }
 
-    private int findOptimalEndTimeIndex(EnergyMixRange mixRange, int hours) {
+    private int findOptimalFirstIndex(EnergyMixRange mixRange, int hours) {
         List<EnergyMixTimestamp> timestamps = mixRange.getTimestamps();
 
         int countOfRanges = hours * 2;
@@ -60,11 +59,11 @@ public class EnergyMixService {
 
         int lastMaxIndex = countOfRanges - 1;
 
-        double maxGreenPerc = 0;
         double currentGreenPerc = timestamps.stream()
                 .limit(countOfRanges)
                 .mapToDouble(EnergyMixTimestamp::getTotalGreenPerc)
                 .sum();
+        double maxGreenPerc = currentGreenPerc;
 
         for (int i = countOfRanges; i < timestamps.size(); i++) {
             currentGreenPerc -= timestamps.get(firstCurrentIndex).getTotalGreenPerc();
@@ -75,7 +74,7 @@ public class EnergyMixService {
                 lastMaxIndex = i;
             }
         }
-        return lastMaxIndex;
+        return lastMaxIndex - countOfRanges + 1;
     }
 
     private ZonedDateTime calcStartTime() {
